@@ -2,7 +2,8 @@ package pl.edu.agh.iisg.to.model;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Optional;
 import pl.edu.agh.iisg.to.executor.QueryExecutor;
@@ -25,18 +26,37 @@ public class Student {
 
   public static Optional<Student> create(
       final String firstName, final String lastName, final int indexNumber) {
-    // TODO
-    String sql = "";
 
-    // TODO
-    // it is important to maintain the correct order of the variables
-    Object[] args = {};
+    String sql = "INSERT INTO student (first_name, last_name, index_number) VALUES (?, ?, ?)";
+
+    Object[] args = {firstName, lastName, indexNumber};
+
+    try {
+      int insertedStudentId = QueryExecutor.createAndObtainId(sql, args);
+      return Student.findById(insertedStudentId);
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
 
     return Optional.empty();
   }
 
   public static Optional<Student> findByIndexNumber(final int indexNumber) {
-    // TODO
+    String query = "SELECT * FROM student WHERE " + Columns.INDEX_NUMBER + " = ?";
+    try (ResultSet rs = QueryExecutor.read(query, indexNumber)) {
+      if (rs.next()) {
+        return Optional.of(
+            new Student(
+                rs.getInt("id"),
+                rs.getString("first_name"),
+                rs.getString("last_name"),
+                rs.getInt("index_number")));
+      } else {
+        return Optional.empty();
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
     return Optional.empty();
   }
 
@@ -65,8 +85,37 @@ public class Student {
   }
 
   public Map<Course, Float> createReport() {
-    // TODO additional task
-    return Collections.emptyMap();
+    String studentGrades =
+        "SELECT * FROM grade g INNER JOIN course c ON g.course_id = c.id WHERE g.student_id = ?";
+    Object[] args = {id};
+
+    // temporary data
+    Map<Course, LinkedList<Float>> allGrades = new HashMap<>();
+
+    // get all grades
+    try (ResultSet rs = QueryExecutor.read(studentGrades, args)) {
+      while (rs.next()) {
+        int course_id = rs.getInt("course_id");
+        Course c = Course.findById(course_id).orElseThrow();
+
+        float grade = rs.getFloat("grade");
+
+        boolean newCourse = !allGrades.containsKey(c);
+        if (newCourse) allGrades.put(c, new LinkedList<>());
+        allGrades.get(c).add(grade);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+
+    // calculate report
+    Map<Course, Float> report = new HashMap<>();
+    allGrades.forEach(
+        (course, floats) -> {
+          Float avg = floats.stream().reduce((float) 0, Float::sum) / floats.size();
+          report.put(course, avg);
+        });
+    return report;
   }
 
   public int id() {

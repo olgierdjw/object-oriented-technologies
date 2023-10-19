@@ -42,7 +42,15 @@ public class CourseDao extends GenericDao<Course> {
   }
 
   public boolean enrollStudent(final Course course, final Student student) {
-    // TODO implement
-    return false;
+    if (course.studentSet().contains(student)) return false;
+    course.studentSet().add(student);
+    student.courseSet().add(course);
+    try {
+      this.update(course);
+    } catch (PersistenceException e) {
+      e.printStackTrace();
+      return false;
+    }
+    return true;
   }
 }

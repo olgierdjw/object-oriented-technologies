@@ -57,26 +57,78 @@ public class Course {
   }
 
   public boolean enrollStudent(final Student student) {
-    String enrollStudentSql = "";
-    Object[] args = {};
+    String enrollStudentSql = "INSERT INTO student_course (student_id, course_id) VALUES (?, ?)";
+    Object[] args = {student.id(), id};
 
-    // TODO
+    try {
+      QueryExecutor.createAndObtainId(enrollStudentSql, args);
+      return true;
 
-    return false;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return false;
+    }
   }
 
+  // to many db queries (Student.findById)
+  //    public List<Student> studentList() {
+  //        String findStudentListSql = "SELECT student_id FROM student_course WHERE course_id = ?";
+  //        Object[] args = {
+  //                id
+  //        };
+  //
+  //        List<Student> resultList = new LinkedList<>();
+  //
+  //        try {
+  //            ResultSet rs = QueryExecutor.read(findStudentListSql, args);
+  //            while (rs.next()) {
+  //                int studentId = rs.getInt("student_id");
+  //                Optional<Student> student = Student.findById(studentId);
+  //                student.ifPresent(resultList::add);
+  //            }
+  //        } catch (SQLException e) {
+  //            e.printStackTrace();
+  //            return resultList;
+  //        }
+  //
+  //        return resultList;
+  //    }
+
   public List<Student> studentList() {
-    String findStudentListSql = "";
-    Object[] args = {};
+    String findStudentListSql =
+        "SELECT * FROM student_course sc INNER JOIN student s ON sc.student_id = s.id WHERE"
+            + " sc.course_id = ?";
+    Object[] args = {id};
 
     List<Student> resultList = new LinkedList<>();
-    // TODO
+
+    try {
+      ResultSet rs = QueryExecutor.read(findStudentListSql, args);
+      while (rs.next()) {
+        Student newStudent =
+            new Student(
+                rs.getInt("student_id"),
+                rs.getString(Student.Columns.FIRST_NAME),
+                rs.getString(Student.Columns.LAST_NAME),
+                rs.getInt(Student.Columns.INDEX_NUMBER));
+        System.out.println(newStudent.hashCode());
+        resultList.add(newStudent);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return resultList;
+    }
 
     return resultList;
   }
 
   public List<Student> cachedStudentsList() {
-    // TOTO implement
+    boolean firstTime = !isStudentsListDownloaded;
+
+    if (firstTime) {
+      isStudentsListDownloaded = true;
+      enrolledStudents = studentList();
+    }
     return enrolledStudents;
   }
 

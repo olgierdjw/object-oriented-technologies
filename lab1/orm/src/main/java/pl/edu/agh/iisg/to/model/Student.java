@@ -30,7 +30,7 @@ public class Student {
   @ManyToMany(mappedBy = "studentSet")
   private Set<Course> courseSet = new HashSet<>();
 
-  Student() {}
+  public Student() {}
 
   public Student(final String firstName, final String lastName, final int indexNumber) {
     this.firstName = firstName;

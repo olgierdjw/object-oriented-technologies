@@ -28,7 +28,7 @@ public class Course {
   @OneToMany(mappedBy = "course")
   private Set<Grade> gradeSet = new HashSet<>();
 
-  Course() {}
+  public Course() {}
 
   public Course(final String name) {
     this.name = name;
