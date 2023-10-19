@@ -1,0 +1,21 @@
+# Compiled class files
+**/*.class
+
+# Log files
+**/*.log
+
+# Gradle build directories
+**/build/
+
+# Maven build directories
+**/target/
+
+# IntelliJ project files
+**/.idea/
+
+# Mac specific files
+**/.DS_Store
+
+# Gradle wrapper jar files
+**/gradle-wrapper.jar
+
