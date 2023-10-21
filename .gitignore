@@ -12,6 +12,7 @@
 
 # IntelliJ project files
 **/.idea/
+**/.gradle/
 
 # Mac specific files
 **/.DS_Store

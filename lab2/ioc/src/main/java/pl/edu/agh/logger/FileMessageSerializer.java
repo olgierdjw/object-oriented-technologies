@@ -3,11 +3,14 @@ package pl.edu.agh.logger;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import javax.inject.Inject;
+import javax.inject.Named;
 
 public class FileMessageSerializer implements IMessageSerializer {
   private final String filename;
 
-  public FileMessageSerializer(String filename) {
+  @Inject
+  public FileMessageSerializer(@Named("logFilename") String filename) {
     this.filename = filename;
   }
 

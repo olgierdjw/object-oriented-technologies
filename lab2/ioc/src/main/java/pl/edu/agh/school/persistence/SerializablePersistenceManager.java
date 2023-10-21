@@ -3,21 +3,29 @@ package pl.edu.agh.school.persistence;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Named;
 import pl.edu.agh.logger.Logger;
 import pl.edu.agh.school.SchoolClass;
 import pl.edu.agh.school.Teacher;
 
-public final class SerializablePersistenceManager {
+public final class SerializablePersistenceManager implements PersistenceManager {
 
-  private static final Logger log = Logger.getInstance();
+  private final Logger log;
 
   private String teachersStorageFileName;
 
   private String classStorageFileName;
 
-  public SerializablePersistenceManager() {
-    teachersStorageFileName = "teachers.dat";
-    classStorageFileName = "classes.dat";
+  @Inject
+  public SerializablePersistenceManager(
+      @Named("teachers-file") String teachersFileName,
+      @Named("class-file") String classFileName,
+      Logger log) {
+    teachersStorageFileName = teachersFileName;
+    classStorageFileName = classFileName;
+    this.log = log;
+    log.log("working!");
   }
 
   public void saveTeachers(List<Teacher> teachers) {
@@ -27,6 +35,7 @@ public final class SerializablePersistenceManager {
     try (ObjectOutputStream oos =
         new ObjectOutputStream(new FileOutputStream(teachersStorageFileName))) {
       oos.writeObject(teachers);
+      log.log("teachers saved");
     } catch (FileNotFoundException e) {
       throw new IllegalArgumentException(e);
     } catch (IOException e) {
@@ -41,6 +50,7 @@ public final class SerializablePersistenceManager {
         new ObjectInputStream(new FileInputStream(teachersStorageFileName))) {
 
       res = (ArrayList<Teacher>) ios.readObject();
+      log.log("teachers loaded");
     } catch (FileNotFoundException e) {
       res = new ArrayList<>();
     } catch (IOException e) {
@@ -59,6 +69,7 @@ public final class SerializablePersistenceManager {
         new ObjectOutputStream(new FileOutputStream(classStorageFileName))) {
 
       oos.writeObject(classes);
+      log.log("classes saved");
     } catch (FileNotFoundException e) {
       throw new IllegalArgumentException(e);
     } catch (IOException e) {
@@ -71,6 +82,7 @@ public final class SerializablePersistenceManager {
     ArrayList<SchoolClass> res = null;
     try (ObjectInputStream ios = new ObjectInputStream(new FileInputStream(classStorageFileName))) {
       res = (ArrayList<SchoolClass>) ios.readObject();
+      log.log("classes loaded");
     } catch (FileNotFoundException e) {
       res = new ArrayList<>();
     } catch (IOException e) {
