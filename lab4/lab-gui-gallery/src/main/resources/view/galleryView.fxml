@@ -14,7 +14,10 @@
     <top>
         <HBox styleClass="form-box">
             <Label text="Search for photos:" prefWidth="120"/>
+            <TextField fx:id="searchTextField" promptText="Enter search query..." prefWidth="570"/>
+            <Button text="Search" onAction="#searchButtonClicked" disable="true"/>
         </HBox>
+
     </top>
     <left>
         <ListView fx:id="imagesListView" prefWidth="120"/>
