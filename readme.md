@@ -6,4 +6,5 @@
 | 2 | Dependency Injection (Guice) |
 | 3 | RxJava |
 | 4 | JavaFX (MVC) |
+| 5 | JavaFX (MVP) |
 

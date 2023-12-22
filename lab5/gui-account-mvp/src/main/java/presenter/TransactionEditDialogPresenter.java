@@ -1,9 +1,15 @@
 package presenter;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.time.format.DateTimeFormatter;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javafx.util.converter.LocalDateStringConverter;
+import model.Category;
 import model.Transaction;
 
 public class TransactionEditDialogPresenter {
@@ -37,19 +43,41 @@ public class TransactionEditDialogPresenter {
 
   @FXML
   private void handleOkAction(ActionEvent event) {
-    // TODO: implement
+    updateModel();
+    dialogStage.close();
   }
 
   @FXML
   private void handleCancelAction(ActionEvent event) {
-    // TODO: implement
+    dialogStage.close();
   }
 
   private void updateModel() {
-    // TODO: implement
+    String pattern = "yyyy-MM-dd";
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+    LocalDateStringConverter converter = new LocalDateStringConverter(formatter, formatter);
+    transaction.setDate(converter.fromString(dateTextField.getText()));
+
+    transaction.setPayee(payeeTextField.getText());
+    transaction.setCategory(new Category(categoryTextField.getText()));
+
+    DecimalFormat decimalFormatter = new DecimalFormat();
+    decimalFormatter.setParseBigDecimal(true);
+    try {
+      transaction.setInflow((BigDecimal) decimalFormatter.parse(inflowTextField.getText()));
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
   }
 
   private void updateControls() {
-    // TODO: implement
+    String pattern = "yyyy-MM-dd";
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+    LocalDateStringConverter converter = new LocalDateStringConverter(formatter, formatter);
+    dateTextField.setText(converter.toString(transaction.getDate()));
+
+    payeeTextField.setText(transaction.getPayee());
+    categoryTextField.setText(transaction.getCategory().getName());
+    inflowTextField.setText(transaction.getInflow().toString());
   }
 }
